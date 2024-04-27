@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
+import React, {useState} from 'react';
+import {AppNavigationContext} from './AppNavigationContext';
 import {View} from 'react-native';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -76,21 +77,27 @@ export const TabNavigator = () => {
 const MainStack = createStackNavigator();
 
 export const AppNavigation = () => {
+  const [popupMenuVisible, setPopupMenuVisible] = useState(false);
   return (
-    <MainStack.Navigator>
-      <MainStack.Screen
-        name="TabNavigator"
-        component={TabNavigator}
-        options={{headerShown: false}}
-      />
-      <MainStack.Screen
-        name="PopupMenuModal"
-        component={PopupMenuModalScreen}
-        options={{
-          headerShown: false,
-          presentation: 'transparentModal',
-        }}
-      />
-    </MainStack.Navigator>
+    <AppNavigationContext.Provider
+      value={{popupMenuVisible, setPopupMenuVisible}}>
+      <MainStack.Navigator>
+        <MainStack.Screen
+          name="TabNavigator"
+          component={TabNavigator}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <MainStack.Screen
+          name="PopupMenuModal"
+          component={PopupMenuModalScreen}
+          options={{
+            headerShown: false,
+            presentation: 'transparentModal',
+          }}
+        />
+      </MainStack.Navigator>
+    </AppNavigationContext.Provider>
   );
 };

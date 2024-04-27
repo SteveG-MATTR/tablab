@@ -1,4 +1,5 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useContext} from 'react';
+import {AppNavigationContext} from '../navigation/AppNavigationContext';
 import {
   View,
   TouchableOpacity,
@@ -11,6 +12,8 @@ import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets, EdgeInsets} from 'react-native-safe-area-context';
 
 const TabBar = ({state, descriptors, navigation}) => {
+  const context = useContext(AppNavigationContext);
+  const popupMenuVisible = context?.popupMenuVisible;
   const tabBarHeight = useRef(130);
   const styles = createStylesWithInsets(useSafeAreaInsets());
   const focusedOptions = descriptors[state.routes[state.index].key].options;
@@ -83,11 +86,16 @@ const TabBar = ({state, descriptors, navigation}) => {
 
         const {tabBarShowLabel = true} = options;
 
+        const buttonStyle =
+          route.name === 'PopMenu' && popupMenuVisible
+            ? {backgroundColor: 'blue'}
+            : {};
+
         return (
           <>
             <TouchableOpacity
               hitSlop={{top: 30, bottom: 30}}
-              style={styles.tabButton}
+              style={[styles.tabButton, buttonStyle]}
               accessibilityRole="button"
               accessibilityState={isFocused ? {selected: true} : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -122,8 +130,7 @@ const createStylesWithInsets = (insets: EdgeInsets) =>
     container: {
       flexDirection: 'row',
       backgroundColor: '#fff',
-      paddingTop: 32,
-      paddingBottom: 32 + insets.bottom,
+      paddingBottom: insets.bottom,
     },
     indicator: {
       position: 'absolute',
@@ -131,7 +138,12 @@ const createStylesWithInsets = (insets: EdgeInsets) =>
       backgroundColor: '#007AFF', // Color of the line
       top: 0,
     },
-    tabButton: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+    tabButton: {
+      flex: 1,
+      height: 95,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     labelText: {fontSize: 12, marginTop: 6},
     tabButtonContent: {
       alignItems: 'center',

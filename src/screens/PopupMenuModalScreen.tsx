@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useContext, useCallback} from 'react';
+import {AppNavigationContext} from '../navigation/AppNavigationContext';
 import {
   Pressable,
   View,
@@ -6,20 +7,33 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Animated, {FlipInEasyX} from 'react-native-reanimated';
+import Animated, {FadeInDown} from 'react-native-reanimated';
+import {useFocusEffect} from '@react-navigation/native';
 
 const PopupMenuModalScreen = (): React.JSX.Element => {
   const navigation = useNavigation();
-  const tabBarHeight = useRoute().params?.tabBarHeight;
+
+  const context = useContext(AppNavigationContext);
+  const setPopupMenuVisible = context?.setPopupMenuVisible;
+  const tabBarHeight = 130;
+
+  useFocusEffect(
+    useCallback(() => {
+      setPopupMenuVisible?.(true);
+      return () => setPopupMenuVisible?.(false);
+    }, [setPopupMenuVisible]),
+  );
+
+  //const tabBarHeight = useRoute().params?.tabBarHeight;
   const styles = getStylesWithInsets({bottom: tabBarHeight});
   const goBack = () => {
     navigation.goBack();
   };
   return (
     <Pressable style={styles.container} onPress={goBack}>
-      <Animated.View entering={FlipInEasyX} style={styles.content}>
+      <Animated.View entering={FadeInDown} style={styles.content}>
         <TouchableOpacity style={styles.buttonWrapper} onPress={() => {}}>
           <MaterialCommunityIcon name="qrcode" size={30} color="white" />
           <Text style={styles.labelText}>Share Credential</Text>
@@ -38,7 +52,9 @@ const PopupMenuModalScreen = (): React.JSX.Element => {
   );
 };
 
-const getStylesWithInsets = insets =>
+type EdgeInsets = {bottom: number};
+
+const getStylesWithInsets = (insets: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
